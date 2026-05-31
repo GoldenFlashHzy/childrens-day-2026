@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>愿望清单 · 王梦郝</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #1a1a2e 30%, #302b63 60%);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            background: linear-gradient(135deg, #fdcb6e, #ff6b9d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+        .wish-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .wish-card:hover {
+            border-color: rgba(255,107,157,0.4);
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        .wish-num {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 6px;
+        }
+        .wish-text {
+            font-size: 20px;
+            color: #fdcb6e;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        .wish-time {
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+        }
+        .empty {
+            text-align: center;
+            color: rgba(255,255,255,0.25);
+            font-size: 16px;
+            margin-top: 60px;
+        }
+        .refresh-btn {
+            display: block;
+            margin: 24px auto 0;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #ff6b9d, #e84393);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(232,67,147,0.4);
+        }
+        .total {
+            text-align: center;
+            color: rgba(255,255,255,0.35);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💌 王梦郝的愿望清单</h1>
+        <p class="total" id="total"></p>
+        <div id="wishList"></div>
+        <button class="refresh-btn" onclick="loadWishes()">刷新</button>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        async function loadWishes() {
+            const list = document.getElementById('wishList');
+            const total = document.getElementById('total');
+
+            try {
+                const res = await fetch(API_BASE + '/api/wishes?password=wangmenghao520');
+                const data = await res.json();
+
+                if (!data.ok) {
+                    list.innerHTML = '<div class="empty">' + data.msg + '</div>';
+                    total.textContent = '';
+                    return;
+                }
+
+                if (data.wishes.length === 0) {
+                    list.innerHTML = '<div class="empty">还没有愿望哦，等待王梦郝小朋友许愿吧~</div>';
+                    total.textContent = '';
+                    return;
+                }
+
+                total.textContent = '共 ' + data.total + ' 条愿望';
+                list.innerHTML = data.wishes.reverse().map(w => `
+                    <div class="wish-card">
+                        <div class="wish-num">愿望 #${w.id}</div>
+                        <div class="wish-text">${w.wish}</div>
+                        <div class="wish-time">${w.time}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                list.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+                total.textContent = '';
+            }
+        }
+
+        loadWishes();
+        setInterval(loadWishes, 15000);
+    </script>
+</body>
+</html>
