@@ -34,7 +34,7 @@ CST = timezone(timedelta(hours=8))
 def load_wishes() -> list:
     if not WISHES_FILE.exists():
         return []
-    with open(WISHES_FILE, "r", encoding="utf-8") as f:
+    with open(WISHES_FILE, "r", encoding="utf-8-sig") as f:
         return json.load(f)
 
 
